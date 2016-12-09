@@ -1,5 +1,6 @@
 #include <pangolin/pangolin.h>
 #include <pangolin/scene/object.h>
+#include <pangolin/scene/handler.h>
 
 int main( int /*argc*/, char** /*argv*/ )
 {
@@ -16,7 +17,7 @@ int main( int /*argc*/, char** /*argv*/ )
     tree.Add( std::make_shared<pangolin::ColoredCube>() );
 
     // Create Interactive View in window
-    pangolin::Handler3D handler(s_cam);
+    pangolin::SceneHandler handler(tree, s_cam);
     pangolin::View& d_cam = pangolin::CreateDisplay()
             .SetBounds(0.0, 1.0, 0.0, 1.0, -640.0f/480.0f)
             .SetHandler(&handler);
@@ -24,7 +25,6 @@ int main( int /*argc*/, char** /*argv*/ )
     d_cam.SetDrawFunction([&](pangolin::View& view){
         view.Activate(s_cam);
         tree.Render();
-        pangolin::glDrawColouredCube();
     });
 
     while( !pangolin::ShouldQuit() )
