@@ -43,14 +43,14 @@ inline void gluPickMatrix(
 struct SceneHandler : public Handler3D
 {
     SceneHandler(
-        SceneRoot& scene,
+        Renderable& scene,
         OpenGlRenderState& cam_state
     ) : Handler3D(cam_state), scene(scene)
     {
 
     }
 
-    void ProcessHitBuffer(GLint hits, GLuint* buf, std::map<GLuint, std::shared_ptr<Renderable>>& hit_map )
+    void ProcessHitBuffer(GLint hits, GLuint* buf, std::map<GLuint, Renderable*>& hit_map )
     {
         GLuint* closestNames = 0;
         GLuint closestNumNames = 0;
@@ -65,14 +65,14 @@ struct SceneHandler : public Handler3D
         }
         for (unsigned int i = 0; i < closestNumNames; i++) {
             const int pickId = closestNames[i];
-            hit_map[pickId] = scene.FindChild(pickId);
+            hit_map[pickId] = InteractiveIndex::I().Find(pickId);
         }
     }
 
     void ComputeHits(pangolin::View& view,
                      const pangolin::OpenGlRenderState& cam_state,
                      int x, int y, int grab_width,
-                     std::map<GLuint, std::shared_ptr<Renderable>>& hit_objects )
+                     std::map<GLuint, Renderable*>& hit_objects )
     {
         // Get views viewport / modelview /projection
         GLint viewport[4] = {view.v.l, view.v.b, view.v.w, view.v.h};
@@ -121,7 +121,7 @@ struct SceneHandler : public Handler3D
 
         for (auto kv : m_selected_objects)
         {
-            Interactive* ir = dynamic_cast<Interactive*>(kv.second.get());
+            Interactive* ir = dynamic_cast<Interactive*>(kv.second);
             handled |= ir && ir->Mouse(
                         button,
                         Eigen::Map<Eigen::Matrix<GLdouble, 3, 1> >(p).cast<double>(),
@@ -141,7 +141,7 @@ struct SceneHandler : public Handler3D
         bool handled = false;
         for (auto kv : m_selected_objects)
         {
-            Interactive* ir = dynamic_cast<Interactive*>(kv.second.get());
+            Interactive* ir = dynamic_cast<Interactive*>(kv.second);
 
             handled |= ir && ir->MouseMotion(
                         Eigen::Map<Eigen::Matrix<GLdouble, 3, 1> >(p).cast<double>(),
@@ -171,7 +171,7 @@ struct SceneHandler : public Handler3D
 
             for (auto kv : m_selected_objects)
             {
-                Interactive* ir = dynamic_cast<Interactive*>(kv.second.get());
+                Interactive* ir = dynamic_cast<Interactive*>(kv.second);
                 handled |= ir && ir->Mouse(
                             button,
                             Eigen::Map<Eigen::Matrix<GLdouble, 3, 1>>(p).cast<double>(),
@@ -187,8 +187,8 @@ struct SceneHandler : public Handler3D
         }
     }
 
-    std::map<GLuint, std::shared_ptr<Renderable>> m_selected_objects;
-    SceneRoot& scene;
+    std::map<GLuint, Renderable*> m_selected_objects;
+    Renderable& scene;
     unsigned int grab_width;
 };
 

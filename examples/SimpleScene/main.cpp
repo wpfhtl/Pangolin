@@ -13,8 +13,8 @@ int main( int /*argc*/, char** /*argv*/ )
         pangolin::ModelViewLookAt(-2,2,-2, 0,0,0, pangolin::AxisY)
     );
 
-    pangolin::SceneRoot tree;
-    tree.Add( std::make_shared<pangolin::ColoredCube>() );
+    pangolin::Renderable tree;
+    tree.Add( std::make_shared<pangolin::Axis>() );
 
     // Create Interactive View in window
     pangolin::SceneHandler handler(tree, s_cam);
