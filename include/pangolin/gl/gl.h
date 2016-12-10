@@ -59,6 +59,7 @@ public:
 #ifdef CALLEE_HAS_RVALREF
     //! Move Constructor
     GlTexture(GlTexture&& tex);
+    void operator=(GlTexture&& tex);
 #endif
     
     //! Default constructor represents 'no texture'
@@ -182,7 +183,8 @@ struct PANGOLIN_EXPORT GlBuffer
     
 #ifdef CALLEE_HAS_RVALREF
     //! Move Constructor
-    GlBuffer(GlBuffer&& tex);
+    GlBuffer(GlBuffer&& buffer);
+    void operator=(GlBuffer&& buffer);
 #endif  
     
     ~GlBuffer();

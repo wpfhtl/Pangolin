@@ -265,7 +265,7 @@ TooN::SE3<> ToTooN_SE3(const OpenGlMatrixSpec& ms);
 #endif
 
 #ifdef HAVE_EIGEN
-template<typename P=double>
+template<typename P>
 Eigen::Matrix<P,4,4> ToEigen(const OpenGlMatrix& ms);
 #endif
 
@@ -300,7 +300,7 @@ OpenGlMatrix::OpenGlMatrix(const Eigen::Matrix<P,4,4>& mat)
 template<typename P>
 OpenGlMatrix::operator Eigen::Matrix<P,4,4>() const
 {
-    return ToEigen(*this);
+    return ToEigen<P>(*this);
 }
 
 template<typename P> inline

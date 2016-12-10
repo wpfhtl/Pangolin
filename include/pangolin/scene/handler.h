@@ -50,7 +50,7 @@ struct SceneHandler : public Handler3D
 
     }
 
-    void ProcessHitBuffer(GLint hits, GLuint* buf, std::map<GLuint, Renderable*>& hit_map )
+    void ProcessHitBuffer(GLint hits, GLuint* buf, std::map<GLuint, Interactive*>& hit_map )
     {
         GLuint* closestNames = 0;
         GLuint closestNumNames = 0;
@@ -72,7 +72,7 @@ struct SceneHandler : public Handler3D
     void ComputeHits(pangolin::View& view,
                      const pangolin::OpenGlRenderState& cam_state,
                      int x, int y, int grab_width,
-                     std::map<GLuint, Renderable*>& hit_objects )
+                     std::map<GLuint, Interactive*>& hit_objects )
     {
         // Get views viewport / modelview /projection
         GLint viewport[4] = {view.v.l, view.v.b, view.v.w, view.v.h};
@@ -187,7 +187,7 @@ struct SceneHandler : public Handler3D
         }
     }
 
-    std::map<GLuint, Renderable*> m_selected_objects;
+    std::map<GLuint, Interactive*> m_selected_objects;
     Renderable& scene;
     unsigned int grab_width;
 };

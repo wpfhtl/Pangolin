@@ -20,6 +20,25 @@ struct RenderParams
     GLint render_mode;
 };
 
+struct Interactive
+{
+    static thread_local GLuint current_id;
+
+    virtual bool Mouse(
+        int button, const Eigen::Vector3d& win, const Eigen::Vector3d& obj,
+        const Eigen::Vector3d& normal, bool pressed, int button_state, int pickId
+    )  = 0;
+
+    virtual bool MouseMotion(
+        const Eigen::Vector3d& win, const Eigen::Vector3d& obj, const Eigen::Vector3d& normal, int button_state, int pickId
+    ) = 0;
+};
+
+struct Manipulator : public Interactive
+{
+    virtual void Render(const RenderParams& params) = 0;
+};
+
 class Renderable
 {
 public:
@@ -51,8 +70,13 @@ public:
         for(auto& p : children) {
             Renderable& r = *p.second;
             if(r.should_show) {
+                glPushMatrix();
                 r.T_pc.Multiply();
                 r.Render(params);
+                if(r.manipulator) {
+                    r.manipulator->Render(params);
+                }
+                glPopMatrix();
             }
         }
     }
@@ -89,21 +113,9 @@ public:
 
     // Children
     std::map<guid_t, std::shared_ptr<Renderable>> children;
-};
 
-class Interactive
-{
-public:
-    static thread_local GLuint current_id;
-
-    virtual bool Mouse(
-        int button, const Eigen::Vector3d& win, const Eigen::Vector3d& obj,
-        const Eigen::Vector3d& normal, bool pressed, int button_state, int pickId
-    )  = 0;
-
-    virtual bool MouseMotion(
-        const Eigen::Vector3d& win, const Eigen::Vector3d& obj, const Eigen::Vector3d& normal, int button_state, int pickId
-    ) = 0;
+    // Manipulator (handler, thing)
+    std::shared_ptr<Manipulator> manipulator;
 };
 
 class InteractiveIndex
@@ -153,7 +165,7 @@ public:
         return instance;
     }
 
-    Renderable* Find(GLuint id)
+    Interactive* Find(GLuint id)
     {
         auto kv = index.find(id);
         if(kv != index.end()) {
@@ -162,7 +174,7 @@ public:
         return nullptr;
     }
 
-    Token Store(Renderable* r)
+    Token Store(Interactive* r)
     {
         index[next_id] = r;
         return Token(next_id++);
@@ -182,7 +194,7 @@ private:
     }
 
     GLuint next_id;
-    std::map<GLuint, Renderable*> index;
+    std::map<GLuint, Interactive*> index;
 };
 
 // Abstract
@@ -264,7 +276,7 @@ struct Axis : public Renderable, public Interactive
             T_on.block<3,1>(0,3) = scale*xyz;
 
             // Update
-            T_pc = (ToEigen(T_pc) * T_on.inverse()).eval();
+            T_pc = (ToEigen<double>(T_pc) * T_on.inverse()).eval();
 
             return true;
         }
