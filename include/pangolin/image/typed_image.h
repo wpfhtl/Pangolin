@@ -41,18 +41,28 @@ struct TypedImage : public ManagedImage<unsigned char>
     {
     }
 
-    inline TypedImage(size_t w, size_t h, const PixelFormat& fmt)
-        : ManagedImage<unsigned char>(w*fmt.bpp/8,h), fmt(fmt)
+    inline TypedImage(unsigned int w, unsigned int h, const PixelFormat& fmt)
+        : ManagedImage<unsigned char>(w,h,w*fmt.bpp/8), fmt(fmt)
     {
-        // Reset to correct width. Above used for correct allocation
-        Base::w = w;
     }
 
-    inline TypedImage(size_t w, size_t h, const PixelFormat& fmt, size_t pitch )
-        : Base(pitch,h), fmt(fmt)
+    inline TypedImage(unsigned int w, unsigned int h, const PixelFormat& fmt, size_t pitch )
+        : Base(w,h, pitch), fmt(fmt)
     {
-        // Reset to correct width. Above used for correct allocation
-        Base::w = w;
+    }
+
+    inline
+    void Reinitialise(unsigned int w, unsigned int h, const PixelFormat& fmt)
+    {
+        Base::Reinitialise(w, h, w*fmt.bpp/8);
+        TypedImage::fmt = fmt;
+    }
+
+    inline
+    void Reinitialise(unsigned int w, unsigned int h, const PixelFormat& fmt, size_t pitch)
+    {
+        Base::Reinitialise(w, h, pitch);
+        TypedImage::fmt = fmt;
     }
 
     // Not copy constructable
@@ -74,13 +84,6 @@ struct TypedImage : public ManagedImage<unsigned char>
         Base::operator =( std::move(img));
     }
 
-    inline
-    void Reinitialise(unsigned int w, unsigned int h, const PixelFormat& fmt)
-    {
-        const size_t pitch = w * fmt.bpp / 8;
-        Base::Reinitialise(pitch, h);
-        this->w = w;
-    }
 
     PixelFormat fmt;
 };

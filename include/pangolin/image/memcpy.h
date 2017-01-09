@@ -95,7 +95,7 @@ void Memset(char* ptr, unsigned char v, size_t size_bytes)
     char* end = ptr + size_bytes;
     for(char* p=ptr; p != end; ++p) *p = v;
 #else
-#  if HAVE_CUDA
+#  ifdef HAVE_CUDA
         if(IsDevicePtr(ptr))
         {
             cudaMemset(ptr, v, size_bytes);

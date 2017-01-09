@@ -71,6 +71,15 @@ public:
     {
     }
 
+    inline
+    ManagedImage(unsigned int w, unsigned int h, unsigned int pitch_bytes)
+        : Image<T>(
+              Allocator().allocate( (h*pitch_bytes) / sizeof(T) + 1),
+               w, h, w*sizeof(T)
+              )
+    {
+    }
+
     // Not copy constructable
     inline
     ManagedImage( const ManagedImage<T>& other ) = delete;
@@ -131,6 +140,14 @@ public:
     {
         if(!Image<T>::ptr || Image<T>::w != w || Image<T>::h != h) {
             *this = ManagedImage<T,Allocator>(w,h);
+        }
+    }
+
+    inline
+    void Reinitialise(unsigned int w, unsigned int h, unsigned int pitch)
+    {
+        if(!Image<T>::ptr || Image<T>::w != w || Image<T>::h != h || Image<T>::pitch != pitch) {
+            *this = ManagedImage<T,Allocator>(w,h,pitch);
         }
     }
 
